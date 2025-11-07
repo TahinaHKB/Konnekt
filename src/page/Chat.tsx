@@ -10,8 +10,8 @@ import {
   doc,
   getDoc,
 } from "firebase/firestore";
-import { db } from "../firebase"; // ton fichier Firebase
-import { auth } from "../firebase"; // ton context pour currentUser
+import { db } from "../firebase"; 
+import { auth } from "../firebase"; 
 
 interface Message {
   id: string;
@@ -62,7 +62,7 @@ const Chat = () => {
   if (uid) fetchChatUser();
 }, [uid]);
 
-  // 1️⃣ Récupérer les messages en temps réel
+  // Récupérer les messages en temps réel
   useEffect(() => {
     const messagesRef = collection(db, "chats", chatId, "messages");
     const q = query(messagesRef, orderBy("createdAt", "asc"));
@@ -78,12 +78,12 @@ const Chat = () => {
     return () => unsubscribe();
   }, [chatId]);
 
-  // 2️⃣ Scroll automatique vers le dernier message
+  // Scroll automatique vers le dernier message
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // 3️⃣ Envoyer un message
+  // Envoyer un message
   const sendMessage = async () => {
     if (!inputMessage.trim()) return;
     const messagesRef = collection(db, "chats", chatId, "messages");
@@ -172,3 +172,4 @@ const Chat = () => {
 };
 
 export default Chat;
+
