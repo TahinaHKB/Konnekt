@@ -10,6 +10,7 @@ import {
   orderBy,
   limit,
   getDoc,
+  startAfter,
 } from "firebase/firestore";
 import { auth, db } from "../firebase";
 import { motion } from "framer-motion";
@@ -20,7 +21,8 @@ import LoadingComment from "../component/LoadingComment";
 
 export default function Naviguer() {
   const [posts, setPosts] = useState<Post[]>([]);
-  const [visibleCount, setVisibleCount] = useState(10);
+  const [lastDoc, setLastDoc] = useState<any>(null);
+  const [isFinished, setIsFinished] = useState(false);
   const [loading, setLoading] = useState(true);
   const [commentInputs, setCommentInputs] = useState<{ [key: string]: string }>(
     {}
@@ -57,6 +59,7 @@ export default function Naviguer() {
     // Récupérer les données
     const posts: Post[] = await Promise.all(
       postsSnapshot.docs.map(async (doc) => {
+        setLastDoc(doc);
         const data = doc.data();
         const profilePic = await getUserProfilePic(data.userId);
 
@@ -85,7 +88,7 @@ export default function Naviguer() {
           commentCount: data.commentCount ?? 0,
           imageUrl: data.imageUrl,
           comments,
-          loveCount: reactionSnapshot.docs.length
+          loveCount: reactionSnapshot.docs.length,
         };
       })
     );
@@ -103,21 +106,50 @@ export default function Naviguer() {
     getPosts();
   }, [currentUser, navigate]);
 
-  const handleLoadMore = () => {
-    const next = visibleCount + 10;
-    setVisibleCount(next);
+  const loadMorePosts = async () => {
+    if (isFinished) {
+      alert("Il n’y a plus de publications");
+      return;
+    }
+
+    let q;
+
+    if (lastDoc) {
+      q = query(
+        collection(db, "posts"),
+        orderBy("createdAt", "desc"),
+        limit(10),
+        startAfter(lastDoc)
+      );
+    } else {
+      q = query(
+        collection(db, "posts"),
+        orderBy("createdAt", "desc"),
+        limit(10)
+      );
+    }
+
+    const snapshot = await getDocs(q);
+
+    if (snapshot.empty) {
+      setIsFinished(true);
+      alert("Il n’y a plus de publications");
+      return;
+    }
+
+    const newPosts = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    })) as Post[];
+
+    setPosts((prev) => [...prev, ...newPosts]);
+    setLastDoc(snapshot.docs[snapshot.docs.length - 1]);
   };
 
   // Toggle "J'adore"
   const toggleLove = async (post: Post) => {
     if (!currentUser || !post.username) return;
-    const reactionRef = doc(
-      db,
-      "posts",
-      post.id,
-      "reactions",
-      currentUser.uid
-    );
+    const reactionRef = doc(db, "posts", post.id, "reactions", currentUser.uid);
     const reactionsSnap = await getDocs(
       collection(db, "posts", post.id, "reactions")
     );
@@ -146,7 +178,6 @@ export default function Naviguer() {
   // Ajouter un commentaire
   const addComment = async (post: Post) => {
     if (!currentUser || !post.username) {
-      alert("klj");
       return;
     }
     const input = commentInputs[post.id];
@@ -250,6 +281,15 @@ export default function Naviguer() {
 
                 {/* Commentaires */}
                 <div className="mt-3 space-y-2">
+                  <div className="border-t border-gray-200 dark:border-gray-700 my-3"></div>
+
+                  <p className="text-sm sm:text-base font-medium text-gray-600 dark:text-gray-400 mb-2 flex items-center gap-2">
+                    💬{" "}
+                    <span className="text-gray-800 ">
+                      Commentaires
+                    </span>
+                  </p>
+
                   {post.comments?.map((c) => (
                     <div
                       key={c.id}
@@ -290,9 +330,9 @@ export default function Naviguer() {
               </motion.div>
             ))}
 
-            {visibleCount && (
+            {!isFinished && (
               <button
-                onClick={handleLoadMore}
+                onClick={loadMorePosts}
                 className="mx-auto bg-blue-500 text-white px-6 py-2 rounded-xl hover:bg-blue-600 transition font-semibold"
               >
                 Charger plus
@@ -304,4 +344,3 @@ export default function Naviguer() {
     </>
   );
 }
-
