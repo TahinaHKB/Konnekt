@@ -7,7 +7,6 @@ import {
   User,
   MessageSquare,
   Compass,
-  Settings,
   LogOut,
   UserCheck,
 } from "lucide-react";
@@ -238,3 +237,4 @@ export default function NavBar() {
     </nav>
   );
 }
+
