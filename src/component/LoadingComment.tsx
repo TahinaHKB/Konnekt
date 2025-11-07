@@ -1,4 +1,8 @@
-export default function Loading() {
+interface ComponentProps {
+  msg: string;
+}
+
+export default function Loading({msg}:ComponentProps) {
   return (
     <div className="flex flex-col items-center justify-center py-10 space-y-4">
   <svg
@@ -22,7 +26,7 @@ export default function Loading() {
     ></path>
   </svg>
   <p className="text-gray-500 dark:text-gray-400 text-lg font-medium">
-    Chargement des publications...
+    {msg}
   </p>
 </div>
 
