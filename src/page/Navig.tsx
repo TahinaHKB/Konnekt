@@ -190,7 +190,7 @@ export default function Naviguer() {
       <NavBar />
       <div className="min-h-screen bg-gradient-to-b from-purple-50 to-blue-50 flex flex-col items-center py-10 pt-[60px] px-4">
         {loading ? (
-          <LoadingComment />
+          <LoadingComment msg="Chargement des publications..." />
         ) : posts.length === 0 ? (
           <p className="text-gray-500 text-lg">
             Aucune publication pour le moment 😢
@@ -304,3 +304,4 @@ export default function Naviguer() {
     </>
   );
 }
+
