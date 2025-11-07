@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import {
   collection,
   addDoc,
@@ -7,6 +7,8 @@ import {
   orderBy,
   onSnapshot,
   serverTimestamp,
+  doc,
+  getDoc,
 } from "firebase/firestore";
 import { db } from "../firebase"; // ton fichier Firebase
 import { auth } from "../firebase"; // ton context pour currentUser
@@ -25,30 +27,40 @@ const Chat = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [chatUser, setChatUser] = useState<{ username: string } | null>(null);
 
   if (!currentUser)
-  return (
-    <div className="flex items-center justify-center h-screen bg-gray-50 dark:bg-gray-900">
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg max-w-sm text-center">
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
-          ⚠️ Accès refusé
-        </h2>
-        <p className="text-gray-700 dark:text-gray-300 mb-4">
-          Vous devez être connecté pour accéder au chat.
-        </p>
-        <a
-          href="/login"
-          className="inline-block bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors"
-        >
-          Se connecter
-        </a>
+    return (
+      <div className="flex items-center justify-center h-screen bg-gray-50 dark:bg-gray-900">
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg max-w-sm text-center">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
+            ⚠️ Accès refusé
+          </h2>
+          <p className="text-gray-700 dark:text-gray-300 mb-4">
+            Vous devez être connecté pour accéder au chat.
+          </p>
+          <a
+            href="/login"
+            className="inline-block bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors"
+          >
+            Se connecter
+          </a>
+        </div>
       </div>
-    </div>
-  );
+    );
 
+  const chatId = [currentUser.uid, uid].sort().join("_"); // identifiant unique pour le chat
 
-  const chatId =
-    [currentUser.uid, uid].sort().join("_"); // identifiant unique pour le chat
+  useEffect(() => {
+  const fetchChatUser = async () => {
+    const userDoc = await getDoc(doc(db, "users", uid!));
+    if (userDoc.exists()) {
+      setChatUser({ username: userDoc.data().username });
+    }
+  };
+
+  if (uid) fetchChatUser();
+}, [uid]);
 
   // 1️⃣ Récupérer les messages en temps réel
   useEffect(() => {
@@ -87,6 +99,30 @@ const Chat = () => {
   return (
     <div className="flex flex-col h-screen bg-gray-50 dark:bg-gray-900">
       {/* Messages */}
+      <div className="flex items-center justify-between p-4 border-b border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800">
+        <Link
+          to="/messages"
+          className="text-blue-500 hover:text-blue-600 font-semibold flex items-center space-x-1"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-5 w-5"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              fillRule="evenodd"
+              d="M9.707 14.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
+              clipRule="evenodd"
+            />
+          </svg>
+          <span>Retour</span>
+        </Link>
+        <h2 className="font-semibold text-gray-900 dark:text-gray-100">
+          Chat avec {chatUser?.username || "Chargement..."}
+        </h2>
+        <div></div>
+      </div>
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
         {messages.map((msg) => (
           <div
