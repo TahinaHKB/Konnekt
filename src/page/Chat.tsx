@@ -23,7 +23,7 @@ interface Message {
 
 const Chat = () => {
   const { uid } = useParams<{ uid: string }>();
-  const currentUser = auth.currentUser; // Assure-toi d’avoir ton user connecté
+  const currentUser = auth.currentUser; 
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -172,4 +172,5 @@ const Chat = () => {
 };
 
 export default Chat;
+
 
