@@ -3,17 +3,20 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth, db } from "../firebase";
 import { doc, setDoc } from "firebase/firestore";
 import { Link, useNavigate } from "react-router-dom";
+import Loading from "../component/LoadingComment";
 
 const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      setLoading(true);
       if (!email || password.length < 6)
         throw new Error("Email ou mot de passe invalide");
 
@@ -37,6 +40,7 @@ const Register = () => {
     } catch (err: any) {
       setError("Erreur inscription :" + err.message);
     }
+    setLoading(false);
   };
 
   return (
@@ -71,12 +75,14 @@ const Register = () => {
         required
         className="w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-400 transition"
       />
+      {loading ? <Loading msg="Création du compte..." /> : 
       <button
         type="submit"
         className="w-full bg-purple-500 text-white py-2 rounded-xl hover:bg-purple-600 transition"
       >
         Créer un compte
       </button>
+      }
     </form>
     <div className="mt-6 text-center text-gray-500 text-sm sm:text-base">
       Déjà un compte ?{" "}
