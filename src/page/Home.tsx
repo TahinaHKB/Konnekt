@@ -228,7 +228,8 @@ const Profile: React.FC = () => {
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-purple-400 focus:outline-none"
+                className="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-purple-400 focus:outline-none cursor-not-allowed"
+                disabled
                 placeholder="Nom d'utilisateur"
               />
               <input
@@ -385,3 +386,4 @@ const Profile: React.FC = () => {
 };
 
 export default Profile;
+
