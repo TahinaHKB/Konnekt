@@ -31,7 +31,7 @@ const Register = () => {
         email: user.email,
         createdAt: new Date(),
         username: username,
-        birthday: "none",
+        birthdate: "none",
         profilePic: "https://res.cloudinary.com/dyjgjijfa/image/upload/v1762547536/m11dom2lca9yzbrc1qpf.png"
       });
 
@@ -100,4 +100,5 @@ const Register = () => {
 };
 
 export default Register;
+
 
