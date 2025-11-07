@@ -32,7 +32,7 @@ const Register = () => {
         createdAt: new Date(),
         username: username,
         birthday: "none",
-        profilePic: "none"
+        profilePic: "https://res.cloudinary.com/dyjgjijfa/image/upload/v1762547536/m11dom2lca9yzbrc1qpf.png"
       });
 
       setError("Utilisateur créé :" + user.uid);
@@ -100,3 +100,4 @@ const Register = () => {
 };
 
 export default Register;
+
